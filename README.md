@@ -1,1 +1,1118 @@
-# Jogo-de-Ingl-s-Sabor-Termo-
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Sabor Termo</title>
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+ tailwind.config = {
+   darkMode: 'class',
+   theme: {
+     extend: {
+       colors: {
+         termo: {
+           bg: '#121213',
+           card: '#1a1a1b',
+           correct: '#538d4e',
+           present: '#b59f3b',
+           absent: '#3a3a3c',
+           border: '#3a3a3c',
+           key: '#818384',
+           accent: '#f59e0b'
+         }
+       },
+       fontFamily: {
+         sans: ['Inter', 'sans-serif'],
+         mono: ['JetBrains Mono', 'monospace']
+       }
+     }
+   }
+ }
+</script>
+
+<!-- Google Fonts & FontAwesome -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+body {
+  background-color: #121213;
+  color: #ffffff;
+  touch-action: manipulation;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Tile Animations */
+.tile {
+  perspective: 1000px;
+  user-select: none;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.tile-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.tile.flip .tile-inner {
+  transform: rotateX(180deg);
+}
+
+.tile-front, .tile-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tile-back {
+  transform: rotateX(180deg);
+}
+
+/* Pop effect when typing */
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.tile-pop {
+  animation: pop 0.1s ease-in-out;
+}
+
+/* Error shake effect */
+@keyframes shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+
+.row-shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Bounce effect on win */
+@keyframes winBounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-16px); }
+  60% { transform: translateY(-8px); }
+}
+
+.tile-win {
+  animation: winBounce 0.8s ease;
+}
+
+/* Custom Scrollbar for Terminal & Modals */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #1a1a1b;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3a3a3c;
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #538d4e;
+}
+
+/* Keyboard Button Styling */
+.key-btn {
+  background-color: #818384;
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 6px;
+  height: 52px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+  font-size: 0.9rem;
+}
+
+.key-btn:active {
+  transform: scale(0.92);
+}
+
+.key-btn.correct {
+  background-color: #538d4e !important;
+}
+
+.key-btn.present {
+  background-color: #b59f3b !important;
+}
+
+.key-btn.absent {
+  background-color: #3a3a3c !important;
+  opacity: 0.5;
+}
+
+/* Desktop 1920x1080 Enhancements */
+@media (min-width: 1024px) {
+  .key-btn {
+    height: 60px;
+    font-size: 1.1rem;
+  }
+}
+</style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between items-center p-3 sm:p-6 select-none overflow-x-hidden bg-[#121213]">
+
+<!-- Top Navigation Bar -->
+<header class="w-full max-w-2xl lg:max-w-4xl flex items-center justify-between py-2 sm:py-3 border-b border-termo-border mb-3 sm:mb-6">
+ <div class="flex items-center gap-1 sm:gap-2">
+   <button id="btn-how-to-play" class="text-gray-400 hover:text-white p-2 transition text-lg sm:text-2xl" title="How to Play">
+     <i class="fa-solid fa-circle-question"></i>
+   </button>
+   <button id="btn-word-list" class="text-gray-400 hover:text-amber-400 p-2 transition text-lg sm:text-2xl" title="All Words / Dictionary">
+     <i class="fa-solid fa-book-open"></i>
+   </button>
+ </div>
+ 
+ <div class="text-center">
+   <h1 class="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-widest text-white flex items-center justify-center gap-2">
+     <span class="text-termo-correct">SABOR</span>
+     <span class="text-amber-400">TERMO</span>
+   </h1>
+ </div>
+ 
+ <div class="flex items-center gap-1 sm:gap-2">
+   <button id="btn-stats" class="text-gray-400 hover:text-white p-2 transition text-lg sm:text-2xl" title="Statistics">
+     <i class="fa-solid fa-chart-simple"></i>
+   </button>
+   <button id="btn-new-game" class="text-gray-400 hover:text-white p-2 transition text-lg sm:text-2xl" title="New Game">
+     <i class="fa-solid fa-rotate-right"></i>
+   </button>
+ </div>
+</header>
+
+<main class="w-full max-w-2xl lg:max-w-4xl flex flex-col items-center flex-grow justify-start gap-4">
+ <div class="w-full flex items-center justify-between bg-termo-card px-4 py-3 rounded-xl border border-termo-border text-xs sm:text-sm shadow-lg">
+   <div class="flex items-center gap-2">
+     <span class="text-gray-400">Attempts:</span>
+     <span id="stat-attempts" class="font-bold text-white font-mono bg-termo-absent px-2 py-0.5 rounded">0/6</span>
+   </div>
+   
+   <button id="btn-hint" class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold px-4 py-1.5 rounded-lg transition transform active:scale-95 shadow-md">
+     <i class="fa-solid fa-lightbulb"></i>
+     <span>HINT / HELP</span>
+     <span id="badge-hints" class="bg-black/20 text-black text-xs font-black px-2 py-0.5 rounded-full">2/2</span>
+   </button>
+   
+   <div class="flex items-center gap-2">
+     <span class="text-gray-400">Hints:</span>
+     <span id="stat-hints" class="font-bold text-amber-400 font-mono">2/2</span>
+   </div>
+ </div>
+
+ <!-- Notification Toast Container -->
+ <div id="toast-container" class="fixed top-16 z-50 flex flex-col gap-2 items-center pointer-events-none w-full max-w-xs"></div>
+
+ <!-- Interactive Game Board Container -->
+ <div id="board-wrapper" class="w-full flex items-center justify-center my-auto py-3 overflow-x-auto custom-scrollbar">
+   <div id="grid-board" class="flex flex-col gap-2 items-center justify-center min-w-min"></div>
+ </div>
+
+ <!-- Live Output Log Accordion / Panel -->
+ <div class="w-full bg-termo-card border border-termo-border rounded-xl p-3 sm:p-4 shadow-inner">
+   <div class="flex items-center justify-between mb-2">
+     <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
+       <i class="fa-solid fa-terminal text-termo-correct"></i>
+       <span>Text Summary (Official Format)</span>
+     </div>
+     <button id="btn-copy-terminal" class="text-xs bg-termo-absent hover:bg-gray-700 text-gray-200 px-3 py-1 rounded flex items-center gap-1.5 transition">
+       <i class="fa-regular fa-copy"></i>
+       <span>Copy</span>
+     </button>
+   </div>
+   <pre id="terminal-output" class="font-mono text-xs sm:text-sm text-green-400 bg-black/60 p-3 rounded-lg overflow-x-auto whitespace-pre-wrap leading-relaxed border border-gray-800 custom-scrollbar max-h-36 select-text"></pre>
+ </div>
+
+ <div id="keyboard" class="w-full max-w-lg lg:max-w-2xl flex flex-col gap-1.5 sm:gap-2 my-3">
+   <!-- Row 1 -->
+   <div class="flex justify-center gap-1 sm:gap-1.5 w-full">
+     <button class="key-btn" data-key="Q">Q</button>
+     <button class="key-btn" data-key="W">W</button>
+     <button class="key-btn" data-key="E">E</button>
+     <button class="key-btn" data-key="R">R</button>
+     <button class="key-btn" data-key="T">T</button>
+     <button class="key-btn" data-key="Y">Y</button>
+     <button class="key-btn" data-key="U">U</button>
+     <button class="key-btn" data-key="I">I</button>
+     <button class="key-btn" data-key="O">O</button>
+     <button class="key-btn" data-key="P">P</button>
+   </div>
+   <!-- Row 2 -->
+   <div class="flex justify-center gap-1 sm:gap-1.5 w-full">
+     <div class="w-[4%]"></div>
+     <button class="key-btn" data-key="A">A</button>
+     <button class="key-btn" data-key="S">S</button>
+     <button class="key-btn" data-key="D">D</button>
+     <button class="key-btn" data-key="F">F</button>
+     <button class="key-btn" data-key="G">G</button>
+     <button class="key-btn" data-key="H">H</button>
+     <button class="key-btn" data-key="J">J</button>
+     <button class="key-btn" data-key="K">K</button>
+     <button class="key-btn" data-key="L">L</button>
+     <div class="w-[4%]"></div>
+   </div>
+   <!-- Row 3 -->
+   <div class="flex justify-center gap-1 sm:gap-1.5 w-full">
+     <button class="key-btn !px-3 sm:!px-4 !text-xs font-bold bg-gray-600 hover:!bg-gray-500" data-key="ENTER">ENTER</button>
+     <button class="key-btn" data-key="Z">Z</button>
+     <button class="key-btn" data-key="X">X</button>
+     <button class="key-btn" data-key="C">C</button>
+     <button class="key-btn" data-key="V">V</button>
+     <button class="key-btn" data-key="B">B</button>
+     <button class="key-btn" data-key="N">N</button>
+     <button class="key-btn" data-key="M">M</button>
+     <button class="key-btn !px-3 sm:!px-4 !bg-gray-600 hover:!bg-gray-500" data-key="BACKSPACE">
+       <i class="fa-solid fa-delete-left"></i>
+     </button>
+   </div>
+ </div>
+</main>
+
+<!-- Modal: Hint (DICA) -->
+<div id="modal-hint" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+ <div class="bg-termo-card border border-termo-border rounded-2xl max-w-md w-full p-6 flex flex-col items-center text-center shadow-2xl relative">
+   <div class="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center text-2xl mb-4 border border-amber-500/40">
+     <i class="fa-solid fa-lightbulb"></i>
+   </div>
+   <h3 id="modal-hint-title" class="text-xl font-bold text-white mb-2">💡 Master Hint</h3>
+   <p id="modal-hint-text" class="text-gray-300 text-sm leading-relaxed mb-6 italic bg-black/40 p-4 rounded-xl border border-gray-800 w-full"></p>
+   <div class="flex items-center justify-between w-full text-xs text-gray-400 mb-4 px-2">
+     <span>Remaining hints:</span>
+     <span id="modal-hint-remaining" class="font-bold text-amber-400 font-mono">1/2</span>
+   </div>
+   <button id="btn-close-hint" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-2.5 rounded-xl transition shadow-lg">
+     Got It! Continue Playing
+   </button>
+ </div>
+</div>
+
+<!-- Modal: Game Over / Victory -->
+<div id="modal-gameover" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+ <div class="bg-termo-card border border-termo-border rounded-2xl max-w-md w-full p-6 flex flex-col items-center text-center shadow-2xl relative">
+   <div id="gameover-icon" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-4 shadow-inner"></div>
+   <h2 id="gameover-title" class="text-2xl font-black mb-1"></h2>
+   <p id="gameover-subtitle" class="text-sm text-gray-400 mb-4"></p>
+   
+   <div class="w-full bg-black/60 border border-gray-800 rounded-xl p-4 mb-5">
+     <div class="text-xs uppercase tracking-widest text-gray-500 mb-1">Secret Word</div>
+     <div id="gameover-secret-word" class="text-xl sm:text-2xl font-black text-amber-400 tracking-wider font-mono"></div>
+     <div id="gameover-secret-desc" class="text-xs text-gray-300 mt-2 italic"></div>
+   </div>
+   
+   <div id="gameover-summary-grid" class="flex flex-col gap-1 mb-6 max-h-32 overflow-y-auto w-full items-center p-2 bg-black/30 rounded-lg"></div>
+   
+   <div class="flex gap-3 w-full">
+     <button id="btn-copy-share" class="flex-1 bg-termo-absent hover:bg-gray-700 text-white font-bold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2">
+       <i class="fa-solid fa-share-nodes"></i>
+       <span>Copy Result</span>
+     </button>
+     <button id="btn-restart-game" class="flex-1 bg-termo-correct hover:bg-green-600 text-white font-bold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2 shadow-lg">
+       <i class="fa-solid fa-play"></i>
+       <span>Play Again</span>
+     </button>
+   </div>
+ </div>
+</div>
+
+<!-- Modal: How to Play -->
+<div id="modal-rules" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+ <div class="bg-termo-card border border-termo-border rounded-2xl max-w-md w-full p-6 flex flex-col text-left shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+   <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
+     <h3 class="text-lg font-bold text-white flex items-center gap-2">
+       <i class="fa-solid fa-book-open text-amber-400"></i>
+       How to Play - Sabor Termo
+     </h3>
+     <button id="btn-close-rules" class="text-gray-400 hover:text-white text-lg">
+       <i class="fa-solid fa-xmark"></i>
+     </button>
+   </div>
+   <div class="space-y-3 text-xs sm:text-sm text-gray-300 leading-relaxed">
+     <p>Guess the secret culinary term in <strong>6 attempts</strong>!</p>
+     <p>Each guess must be a valid English word or expression from our gastronomic flavors and textures list.</p>
+     <div class="border-t border-gray-800 pt-3">
+       <div class="font-bold text-white mb-2">Color Examples:</div>
+       <div class="flex items-center gap-2 mb-2">
+         <div class="w-8 h-8 bg-termo-correct text-white font-bold flex items-center justify-center rounded">M</div>
+         <span>The letter <strong>M</strong> is in the word and in the correct spot.</span>
+       </div>
+       <div class="flex items-center gap-2 mb-2">
+         <div class="w-8 h-8 bg-termo-present text-white font-bold flex items-center justify-center rounded">I</div>
+         <span>The letter <strong>I</strong> is in the word, but in a different spot.</span>
+       </div>
+       <div class="flex items-center gap-2 mb-2">
+         <div class="w-8 h-8 bg-termo-absent text-white font-bold flex items-center justify-center rounded">L</div>
+         <span>The letter <strong>L</strong> is not in the secret term.</span>
+       </div>
+     </div>
+     <div class="border-t border-gray-800 pt-3">
+       <div class="font-bold text-amber-400 mb-1">Hints & Spaces:</div>
+       <ul class="list-disc list-inside space-y-1 text-gray-400 text-xs">
+         <li>Spaces and hyphens are automatically revealed in the grid.</li>
+         <li>You can ask for up to <strong>2 hints</strong> per match using the lightbulb button.</li>
+         <li>You can inspect all available words by clicking the book icon in the top header.</li>
+       </ul>
+     </div>
+   </div>
+ </div>
+</div>
+
+<!-- Modal: All Words / Dictionary -->
+<div id="modal-word-list" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+ <div class="bg-termo-card border border-termo-border rounded-2xl max-w-2xl w-full p-6 flex flex-col text-left shadow-2xl relative max-h-[90vh]">
+   <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
+     <div>
+       <h3 class="text-lg font-bold text-white flex items-center gap-2">
+         <i class="fa-solid fa-book-bookmark text-amber-400"></i>
+         Sabor Termo Dictionary
+       </h3>
+       <p class="text-xs text-gray-400">Browse all culinary words and expressions in the game dataset</p>
+     </div>
+     <button id="btn-close-word-list" class="text-gray-400 hover:text-white text-lg">
+       <i class="fa-solid fa-xmark"></i>
+     </button>
+   </div>
+   
+   <div class="mb-4">
+     <div class="relative">
+       <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-500 text-sm"></i>
+       <input type="text" id="input-search-words" placeholder="Search word or description..." class="w-full bg-black/50 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition" />
+     </div>
+   </div>
+
+   <div id="dictionary-container" class="space-y-2 overflow-y-auto custom-scrollbar flex-grow pr-1"></div>
+ </div>
+</div>
+
+<script>
+ const GAME_DATA = [
+   {
+     word: "briny",
+     description: "Pronounced, fresh salty taste.",
+     hints: [
+       "Reminiscent of sea water, cured olives, and fresh oysters.",
+       "Intense salty flavor characteristic of seafood preserves."
+     ]
+   },
+   {
+     word: "gooey",
+     description: "Viscous, melted, and sticky texture.",
+     hints: [
+       "Think of melted chocolate filling oozing out when cutting a hot cake.",
+       "Viscous, creamy, and highly sticky feel."
+     ]
+   },
+   {
+     word: "mild",
+     description: "Gentle and subtle flavor.",
+     hints: [
+       "Smooth taste, without aggressive spices, easy to like.",
+       "The opposite of spicy or strong; delicate and subtle."
+     ]
+   },
+   {
+     word: "bland",
+     description: "Neutral or dull taste.",
+     hints: [
+       "Lacks seasoning or character; almost flavorless.",
+       "Like butterless toast or unsalted food."
+     ]
+   },
+   {
+     word: "tangy",
+     description: "Lively and refreshing acidity.",
+     hints: [
+       "A vibrant citrus acidity that instantly makes your mouth water.",
+       "Reminiscent of passion fruit, lemon, or natural Greek yogurt."
+     ]
+   },
+   {
+     word: "comforting",
+     description: "Cozy and homey feeling.",
+     hints: [
+       "Warming food that feels like a cozy blanket on a cold day.",
+       "A soothing feeling from enjoying hot soup or homemade mashed potatoes."
+     ]
+   },
+   {
+     word: "earthy",
+     description: "Rustic notes reminiscent of soil.",
+     hints: [
+       "Reminds of fresh mushrooms, truffles, beets, and damp soil.",
+       "Deep, rustic, natural flavor directly from the ground."
+     ]
+   },
+   {
+     word: "pungent",
+     description: "Penetrating and sharp aroma and taste.",
+     hints: [
+       "Extremely sharp and strong flavor, like raw garlic or horseradish.",
+       "Strong, biting smell that hits your nose right away."
+     ]
+   },
+   {
+     word: "rich",
+     description: "Dense, full-bodied, savory flavor.",
+     hints: [
+       "Heavy and dense taste, full of butter, cream, or egg yolk.",
+       "Satisfies quickly due to rich fats."
+     ]
+   },
+   {
+     word: "smoky",
+     description: "Charred, wood-smoke notes.",
+     hints: [
+       "Notes of hardwood smoke, like bacon or barbecue.",
+       "Flavor reminiscent of wood smoke and live embers."
+     ]
+   },
+   {
+     word: "melt-in-your-mouth",
+     description: "So soft it dissolves in the mouth.",
+     hints: [
+       "Texture so tender it dissolves on the tongue without chewing.",
+       "Like fine foie gras, cotton candy, or ultra-marbled beef."
+     ]
+   },
+   {
+     word: "fall off the bone",
+     description: "Extremely tender, loose meat.",
+     hints: [
+       "Ribs slow-roasted for hours until meat falls off the bone by itself.",
+       "The ultimate level of tenderness in slow roasts."
+     ]
+   },
+   {
+     word: "cuts like butter",
+     description: "Extreme tenderness when cut.",
+     hints: [
+       "A knife blade gliding through a filet mignon with zero resistance.",
+       "Classic expression for extremely tender textures."
+     ]
+   },
+   {
+     word: "airy",
+     description: "Light and full of air.",
+     hints: [
+       "Light as a cloud, filled with air bubbles like a perfect mousse or meringue.",
+       "Extreme sense of lightness when chewing."
+     ]
+   },
+   {
+     word: "crumbly",
+     description: "Breaks apart into small pieces easily.",
+     hints: [
+       "Specialty of shortbread cookies or feta cheese that crumbles at a touch.",
+       "Dry texture that breaks into small pieces in your mouth."
+     ]
+   },
+   {
+     word: "flaky",
+     description: "Thin, crisp layers.",
+     hints: [
+       "Crisp pastry that separates into thin golden buttered layers.",
+       "Typical of croissants, puff pastry, or perfectly cooked fish."
+     ]
+   },
+   {
+     word: "silky",
+     description: "Smooth and silky texture.",
+     hints: [
+       "Extremely smooth texture without lumps, gliding like silk.",
+       "Characteristic of hollandaise sauce or velvety pudding."
+     ]
+   },
+   {
+     word: "velvety",
+     description: "Velvety, elegant mouthfeel.",
+     hints: [
+       "Velvety, thick, and smooth, coating the palate with elegance.",
+       "Like melted fine chocolate or dense whipped cream."
+     ]
+   },
+   {
+     word: "indulgent",
+     description: "Extravagant and rich.",
+     hints: [
+       "A true culinary extravaganza rich in calories and delight.",
+       "An irresistible, decadent dish without diet worries."
+     ]
+   },
+   {
+     word: "exquisite",
+     description: "Refined and high-gastronomy.",
+     hints: [
+       "High gastronomy flavor, extremely refined and perfectly balanced.",
+       "Quality of a dish prepared by a star chef."
+     ]
+   },
+   {
+     word: "interesting flavor profile",
+     description: "Complex and intriguing aromatic profile.",
+     hints: [
+       "Complex mix of sweet, sour, salty, and spicy notes in one bite.",
+       "Intriguing, unconventional flavor profile that surprises the palate."
+     ]
+   },
+   {
+     word: "umami",
+     description: "Deep and savory taste.",
+     hints: [
+       "The fifth basic taste! Found in soy sauce, parmesan, and mushrooms.",
+       "Savory, rich, mouth-watering taste characteristic of concentrated broths."
+     ]
+   },
+   {
+     word: "sticky",
+     description: "Tacky and sweet.",
+     hints: [
+       "Think of gooey caramel or honey-glazed chicken wings.",
+       "Sticks to fingers and mouth with sweetness and viscosity."
+     ]
+   },
+   {
+     word: "burnt",
+     description: "Toasted and slightly bitter notes.",
+     hints: [
+       "Intense toasted note of over-crisped crust or dark caramelized sugar.",
+       "Reminds of wood-fired rustic bread crust or crème brûlée sugar."
+     ]
+   },
+   {
+     word: "sickly sweet",
+     description: "Excessively sweet, cloying.",
+     hints: [
+       "Overly sweet to the point of being cloying, calling for water.",
+       "Dessert with triple syrup and no acidity to balance."
+     ]
+   }
+ ];
+
+ class SoundEngine {
+   constructor() {
+     this.ctx = null;
+   }
+   init() {
+     if (!this.ctx) {
+       const AudioContext = window.AudioContext || window.webkitAudioContext;
+       if (AudioContext) this.ctx = new AudioContext();
+     }
+   }
+   playTone(freq, type, duration, gainVal = 0.1) {
+     if (!this.ctx) return;
+     try {
+       const osc = this.ctx.createOscillator();
+       const gain = this.ctx.createGain();
+       osc.type = type;
+       osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+       gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+       gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+       osc.connect(gain);
+       gain.connect(this.ctx.destination);
+       osc.start();
+       osc.stop(this.ctx.currentTime + duration);
+     } catch (e) {}
+   }
+   keyTap() { this.init(); this.playTone(400, 'sine', 0.05, 0.05); }
+   flipTile(index) { this.init(); this.playTone(300 + index * 40, 'triangle', 0.1, 0.08); }
+   error() { this.init(); this.playTone(150, 'sawtooth', 0.2, 0.15); }
+   win() {
+     this.init();
+     const notes = [523.25, 659.25, 783.99, 1046.50];
+     notes.forEach((n, i) => {
+       setTimeout(() => this.playTone(n, 'sine', 0.3, 0.12), i * 120);
+     });
+   }
+ }
+ const sound = new SoundEngine();
+
+ let secretObj = null;
+ let secretWord = "";
+ let currentAttempt = 0;
+ let currentLetters = [];
+ let hintsUsed = 0;
+ let isGameOver = false;
+ let attemptsHistory = [];
+ let discardedLetters = new Set();
+ let letterSlotsCount = 0;
+
+ const gridBoard = document.getElementById('grid-board');
+ const terminalOutput = document.getElementById('terminal-output');
+ const statAttempts = document.getElementById('stat-attempts');
+ const statHints = document.getElementById('stat-hints');
+ const badgeHints = document.getElementById('badge-hints');
+ const toastContainer = document.getElementById('toast-container');
+ const keyboardContainer = document.getElementById('keyboard');
+
+ function isAlpha(char) {
+   return /^[A-Z]$/i.test(char);
+ }
+
+ function showToast(msg, duration = 2000) {
+   const toast = document.createElement('div');
+   toast.className = 'bg-white text-black font-bold px-4 py-2 rounded-lg shadow-xl text-xs sm:text-sm animate-bounce text-center border-2 border-black';
+   toast.innerText = msg;
+   toastContainer.appendChild(toast);
+   setTimeout(() => {
+     toast.style.opacity = '0';
+     toast.style.transition = 'opacity 0.3s ease';
+     setTimeout(() => toast.remove(), 300);
+   }, duration);
+ }
+
+ function initGame() {
+   secretObj = GAME_DATA[Math.floor(Math.random() * GAME_DATA.length)];
+   secretWord = secretObj.word.toUpperCase();
+   
+   currentAttempt = 0;
+   currentLetters = [];
+   hintsUsed = 0;
+   isGameOver = false;
+   attemptsHistory = [];
+   discardedLetters.clear();
+   letterSlotsCount = secretWord.split('').filter(c => isAlpha(c)).length;
+   
+   statAttempts.innerText = `0/6`;
+   statHints.innerText = `2/2`;
+   badgeHints.innerText = `2/2`;
+   
+   document.querySelectorAll('.key-btn').forEach(btn => {
+     btn.classList.remove('correct', 'present', 'absent');
+   });
+   
+   buildGridBoard();
+   updateTerminalOutput();
+ }
+
+ function buildGridBoard() {
+   gridBoard.innerHTML = '';
+   for (let rowIdx = 0; rowIdx < 6; rowIdx++) {
+     const rowDiv = document.createElement('div');
+     rowDiv.id = `row-${rowIdx}`;
+     rowDiv.className = 'flex items-center justify-center gap-1 sm:gap-1.5 lg:gap-2 w-full flex-wrap max-w-full';
+     let letterIndexCounter = 0;
+     
+     for (let colIdx = 0; colIdx < secretWord.length; colIdx++) {
+       const char = secretWord[colIdx];
+       if (char === ' ') {
+         const spaceDiv = document.createElement('div');
+         spaceDiv.className = 'w-2 sm:w-4 lg:w-5 h-9 sm:h-12 lg:h-14 flex items-center justify-center opacity-30';
+         spaceDiv.innerHTML = '<span class="text-xs text-gray-500 font-mono">␣</span>';
+         rowDiv.appendChild(spaceDiv);
+       } else if (char === '-') {
+         const hyphenTile = document.createElement('div');
+         hyphenTile.className = 'w-7 sm:w-10 lg:w-12 h-9 sm:h-12 lg:h-14 bg-termo-absent border-2 border-gray-600 text-amber-400 font-extrabold flex items-center justify-center rounded-lg text-sm sm:text-base lg:text-lg shadow';
+         hyphenTile.innerText = '-';
+         rowDiv.appendChild(hyphenTile);
+       } else {
+         const tile = document.createElement('div');
+         tile.className = 'tile w-9 sm:w-12 lg:w-14 h-11 sm:h-14 lg:h-16 text-base sm:text-xl lg:text-2xl font-black rounded-lg border-2 border-termo-border';
+         tile.dataset.slotIndex = letterIndexCounter;
+         
+         const inner = document.createElement('div');
+         inner.className = 'tile-inner';
+         const front = document.createElement('div');
+         front.className = 'tile-front bg-termo-card text-white border-2 border-termo-border';
+         front.innerText = '';
+         const back = document.createElement('div');
+         back.className = 'tile-back text-white shadow-md';
+         back.innerText = '';
+         
+         inner.appendChild(front);
+         inner.appendChild(back);
+         tile.appendChild(inner);
+         rowDiv.appendChild(tile);
+         letterIndexCounter++;
+       }
+     }
+     gridBoard.appendChild(rowDiv);
+   }
+ }
+
+ function handleKeyPress(key) {
+   if (isGameOver) return;
+   const upperKey = key.toUpperCase();
+   if (upperKey === 'ENTER') {
+     submitAttempt();
+   } else if (upperKey === 'BACKSPACE' || upperKey === 'DELETE' || upperKey === 'BACK') {
+     removeLetter();
+   } else if (isAlpha(upperKey) && upperKey.length === 1) {
+     addLetter(upperKey);
+   }
+ }
+
+ function addLetter(letter) {
+   if (currentLetters.length < letterSlotsCount) {
+     currentLetters.push(letter);
+     sound.keyTap();
+     updateCurrentRowTiles();
+   }
+ }
+
+ function removeLetter() {
+   if (currentLetters.length > 0) {
+     currentLetters.pop();
+     sound.keyTap();
+     updateCurrentRowTiles();
+   }
+ }
+
+ function updateCurrentRowTiles() {
+   const activeRow = document.getElementById(`row-${currentAttempt}`);
+   if (!activeRow) return;
+   const tiles = activeRow.querySelectorAll('.tile');
+   tiles.forEach((tile, idx) => {
+     const front = tile.querySelector('.tile-front');
+     if (idx < currentLetters.length) {
+       front.innerText = currentLetters[idx];
+       front.classList.add('border-gray-400');
+       tile.classList.add('tile-pop');
+       setTimeout(() => tile.classList.remove('tile-pop'), 100);
+     } else {
+       front.innerText = '';
+       front.classList.remove('border-gray-400');
+     }
+   });
+ }
+
+ function submitAttempt() {
+   if (currentLetters.length < letterSlotsCount) {
+     sound.error();
+     showToast("Fill in all letters!");
+     const activeRow = document.getElementById(`row-${currentAttempt}`);
+     activeRow.classList.add('row-shake');
+     setTimeout(() => activeRow.classList.remove('row-shake'), 500);
+     return;
+   }
+
+   const secretAlphaOnly = secretWord.split('').filter(c => isAlpha(c));
+   const guessAlphaOnly = [...currentLetters];
+   const colors = new Array(letterSlotsCount).fill('absent');
+   const secretLetterCounts = {};
+
+   for (let i = 0; i < letterSlotsCount; i++) {
+     const sChar = secretAlphaOnly[i];
+     const gChar = guessAlphaOnly[i];
+     if (gChar === sChar) {
+       colors[i] = 'correct';
+     } else {
+       secretLetterCounts[sChar] = (secretLetterCounts[sChar] || 0) + 1;
+     }
+   }
+
+   for (let i = 0; i < letterSlotsCount; i++) {
+     if (colors[i] !== 'correct') {
+       const gChar = guessAlphaOnly[i];
+       if (secretLetterCounts[gChar] && secretLetterCounts[gChar] > 0) {
+         colors[i] = 'present';
+         secretLetterCounts[gChar]--;
+       } else {
+         colors[i] = 'absent';
+         discardedLetters.add(gChar);
+       }
+     }
+   }
+
+   const activeRow = document.getElementById(`row-${currentAttempt}`);
+   const tiles = activeRow.querySelectorAll('.tile');
+   let attemptEmojis = [];
+
+   colors.forEach((col, idx) => {
+     const tile = tiles[idx];
+     const back = tile.querySelector('.tile-back');
+     
+     back.innerText = guessAlphaOnly[idx];
+     setTimeout(() => {
+       sound.flipTile(idx);
+       tile.classList.add('flip');
+       if (col === 'correct') {
+         back.classList.add('bg-termo-correct');
+         attemptEmojis.push('🟩');
+       } else if (col === 'present') {
+         back.classList.add('bg-termo-present');
+         attemptEmojis.push('🟨');
+       } else {
+         back.classList.add('bg-termo-absent');
+         attemptEmojis.push('⬛');
+       }
+       updateKeyboardKey(guessAlphaOnly[idx], col);
+     }, idx * 250);
+   });
+
+   const formattedGuessWithSpaces = guessAlphaOnly.join(' ');
+   attemptsHistory.push({
+     rawGuess: guessAlphaOnly.join(''),
+     displayGuess: formattedGuessWithSpaces,
+     colors: colors,
+     emojis: attemptEmojis.join(' ')
+   });
+
+   const animationTotalTime = letterSlotsCount * 250 + 300;
+   setTimeout(() => {
+     currentAttempt++;
+     statAttempts.innerText = `${currentAttempt}/6`;
+     const isWin = colors.every(c => c === 'correct');
+     if (isWin) {
+       isGameOver = true;
+       sound.win();
+       tiles.forEach((t, i) => setTimeout(() => t.classList.add('tile-win'), i * 80));
+       setTimeout(() => showGameOverModal(true), 1000);
+     } else if (currentAttempt >= 6) {
+       isGameOver = true;
+       sound.error();
+       setTimeout(() => showGameOverModal(false), 800);
+     } else {
+       currentLetters = [];
+       updateTerminalOutput();
+     }
+   }, animationTotalTime);
+ }
+
+ function updateKeyboardKey(letter, state) {
+   const keyBtn = document.querySelector(`.key-btn[data-key="${letter}"]`);
+   if (!keyBtn) return;
+   if (state === 'correct') {
+     keyBtn.classList.remove('present', 'absent');
+     keyBtn.classList.add('correct');
+   } else if (state === 'present' && !keyBtn.classList.contains('correct')) {
+     keyBtn.classList.remove('absent');
+     keyBtn.classList.add('present');
+   } else if (state === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
+     keyBtn.classList.add('absent');
+   }
+ }
+
+ function updateTerminalOutput() {
+   let outputText = `--- SABOR TERMO ---\n`;
+   const alphaCount = secretWord.split('').filter(c => isAlpha(c)).length;
+   let wordDisplay = secretWord.split('').map(c => (c === ' ' ? ' ' : (c === '-' ? '-' : '_'))).join(' ');
+
+   outputText += `Word: ${wordDisplay} (${alphaCount} letters)\n`;
+   outputText += `Remaining hints: ${2 - hintsUsed}/2\n`;
+
+   const discardedArr = Array.from(discardedLetters).sort();
+   outputText += `Discarded letters: ${discardedArr.length > 0 ? discardedArr.join(', ') : 'None'}\n\n`;
+
+   attemptsHistory.forEach((att) => {
+     outputText += `${att.displayGuess}\n`;
+     outputText += `${att.emojis}\n\n`;
+   });
+
+   if (!isGameOver) {
+     outputText += `Attempts: ${currentAttempt}/6`;
+   } else {
+     outputText += `Game Over! Final result above.`;
+   }
+   terminalOutput.innerText = outputText;
+ }
+
+ function triggerHint() {
+   if (isGameOver) return;
+   if (hintsUsed >= 2) {
+     sound.error();
+     showToast("You have reached the limit of 2 hints in this match!");
+     return;
+   }
+   const hintIndex = hintsUsed;
+   const hintText = secretObj.hints[hintIndex];
+   hintsUsed++;
+
+   statHints.innerText = `${2 - hintsUsed}/2`;
+   badgeHints.innerText = `${2 - hintsUsed}/2`;
+
+   document.getElementById('modal-hint-title').innerText = `💡 Master Hint (${hintsUsed}/2)`;
+   document.getElementById('modal-hint-text').innerText = `"${hintText}"`;
+   document.getElementById('modal-hint-remaining').innerText = `${2 - hintsUsed}/2`;
+   document.getElementById('modal-hint').classList.remove('hidden');
+   sound.keyTap();
+   updateTerminalOutput();
+ }
+
+ function showGameOverModal(isWin) {
+   const modal = document.getElementById('modal-gameover');
+   const icon = document.getElementById('gameover-icon');
+   const title = document.getElementById('gameover-title');
+   const subtitle = document.getElementById('gameover-subtitle');
+   const wordBox = document.getElementById('gameover-secret-word');
+   const descBox = document.getElementById('gameover-secret-desc');
+   const summaryGrid = document.getElementById('gameover-summary-grid');
+
+   if (isWin) {
+     icon.className = "w-16 h-16 bg-green-500/20 text-green-400 border border-green-500/40 rounded-full flex items-center justify-center text-3xl mb-4";
+     icon.innerHTML = `<i class="fa-solid fa-trophy"></i>`;
+     title.className = "text-2xl font-black text-green-400 mb-1";
+     title.innerText = "Excellent! You Got It!";
+     subtitle.innerText = `You discovered the flavor in ${currentAttempt} attempt(s)!`;
+   } else {
+     icon.className = "w-16 h-16 bg-red-500/20 text-red-400 border border-red-500/40 rounded-full flex items-center justify-center text-3xl mb-4";
+     icon.innerHTML = `<i class="fa-solid fa-face-frown"></i>`;
+     title.className = "text-2xl font-black text-red-400 mb-1";
+     title.innerText = "Game Over!";
+     subtitle.innerText = "Not this time. The flavor remained secret!";
+   }
+
+   wordBox.innerText = secretWord;
+   descBox.innerText = secretObj.description;
+
+   summaryGrid.innerHTML = '';
+   attemptsHistory.forEach(att => {
+     const row = document.createElement('div');
+     row.className = 'font-mono text-xs tracking-widest';
+     row.innerText = att.emojis;
+     summaryGrid.appendChild(row);
+   });
+
+   modal.classList.remove('hidden');
+ }
+
+ function renderWordDictionary(filter = "") {
+   const container = document.getElementById('dictionary-container');
+   container.innerHTML = '';
+   
+   const cleanFilter = filter.toLowerCase().trim();
+   const filteredWords = GAME_DATA.filter(item => 
+     item.word.toLowerCase().includes(cleanFilter) || 
+     item.description.toLowerCase().includes(cleanFilter)
+   );
+
+   if (filteredWords.length === 0) {
+     container.innerHTML = `<div class="text-center text-gray-500 text-sm py-8">No terms found matching "${filter}".</div>`;
+     return;
+   }
+
+   filteredWords.forEach(item => {
+     const card = document.createElement('div');
+     card.className = 'bg-black/40 border border-gray-800 rounded-xl p-3 flex flex-col gap-1 hover:border-amber-500/50 transition';
+     
+     const topRow = document.createElement('div');
+     topRow.className = 'flex items-center justify-between';
+     
+     const wordName = document.createElement('span');
+     wordName.className = 'font-mono font-bold text-amber-400 text-base uppercase tracking-wider';
+     wordName.innerText = item.word;
+
+     const charBadge = document.createElement('span');
+     charBadge.className = 'text-[10px] bg-termo-absent text-gray-300 font-mono px-2 py-0.5 rounded-full';
+     charBadge.innerText = `${item.word.length} chars`;
+
+     topRow.appendChild(wordName);
+     topRow.appendChild(charBadge);
+
+     const desc = document.createElement('p');
+     desc.className = 'text-xs text-gray-300 font-medium';
+     desc.innerText = item.description;
+
+     const hintsList = document.createElement('ul');
+     hintsList.className = 'text-[11px] text-gray-500 list-disc list-inside mt-1 space-y-0.5';
+     item.hints.forEach(h => {
+       const li = document.createElement('li');
+       li.innerText = h;
+       hintsList.appendChild(li);
+     });
+
+     card.appendChild(topRow);
+     card.appendChild(desc);
+     card.appendChild(hintsList);
+     container.appendChild(card);
+   });
+ }
+
+ document.addEventListener('keydown', (e) => {
+   if (e.altKey || e.ctrlKey || e.metaKey) return;
+   handleKeyPress(e.key);
+ });
+
+ keyboardContainer.addEventListener('click', (e) => {
+   const btn = e.target.closest('.key-btn');
+   if (btn && btn.dataset.key) {
+     handleKeyPress(btn.dataset.key);
+   }
+ });
+
+ document.getElementById('btn-hint').addEventListener('click', triggerHint);
+ document.getElementById('btn-close-hint').addEventListener('click', () => {
+   document.getElementById('modal-hint').classList.add('hidden');
+ });
+
+ document.getElementById('btn-new-game').addEventListener('click', () => {
+   initGame();
+   showToast("New game started! Good luck.");
+ });
+
+ document.getElementById('btn-restart-game').addEventListener('click', () => {
+   document.getElementById('modal-gameover').classList.add('hidden');
+   initGame();
+ });
+
+ document.getElementById('btn-how-to-play').addEventListener('click', () => {
+   document.getElementById('modal-rules').classList.remove('hidden');
+ });
+
+ document.getElementById('btn-close-rules').addEventListener('click', () => {
+   document.getElementById('modal-rules').classList.add('hidden');
+ });
+
+ document.getElementById('btn-word-list').addEventListener('click', () => {
+   renderWordDictionary();
+   document.getElementById('modal-word-list').classList.remove('hidden');
+ });
+
+ document.getElementById('btn-close-word-list').addEventListener('click', () => {
+   document.getElementById('modal-word-list').classList.add('hidden');
+ });
+
+ document.getElementById('input-search-words').addEventListener('input', (e) => {
+   renderWordDictionary(e.target.value);
+ });
+
+ document.getElementById('btn-copy-terminal').addEventListener('click', () => {
+   copyToClipboard(terminalOutput.innerText);
+   showToast("Summary copied!");
+ });
+
+ document.getElementById('btn-copy-share').addEventListener('click', () => {
+   copyToClipboard(terminalOutput.innerText);
+   showToast("Result copied!");
+ });
+
+ function copyToClipboard(text) {
+   const textarea = document.createElement('textarea');
+   textarea.value = text;
+   document.body.appendChild(textarea);
+   textarea.select();
+   document.execCommand('copy');
+   document.body.removeChild(textarea);
+ }
+
+ window.onload = () => {
+   initGame();
+ };
+</script>
+</body>
+</html>
