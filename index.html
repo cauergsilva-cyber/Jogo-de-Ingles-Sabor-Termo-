@@ -313,11 +313,11 @@ body {
    <div class="flex gap-3 w-full">
      <button id="btn-copy-share" class="flex-1 bg-termo-absent hover:bg-gray-700 text-white font-bold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2">
        <i class="fa-solid fa-share-nodes"></i>
-       <span>Copy Result</span>
+       <span>Copy result</span>
      </button>
      <button id="btn-restart-game" class="flex-1 bg-termo-correct hover:bg-green-600 text-white font-bold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2 shadow-lg">
        <i class="fa-solid fa-play"></i>
-       <span>Play Again</span>
+       <span>Play again</span>
      </button>
    </div>
  </div>
@@ -337,9 +337,9 @@ body {
    </div>
    <div class="space-y-3 text-xs sm:text-sm text-gray-300 leading-relaxed">
      <p>Guess the secret culinary term in <strong>6 attempts</strong>!</p>
-     <p>Each guess must be a valid English word or expression from our gastronomic flavors and textures list.</p>
+     <p>Each guess must be a valid English word or expression from our list of food flavors and textures.</p>
      <div class="border-t border-gray-800 pt-3">
-       <div class="font-bold text-white mb-2">Color Examples:</div>
+       <div class="font-bold text-white mb-2">Color examples:</div>
        <div class="flex items-center gap-2 mb-2">
          <div class="w-8 h-8 bg-termo-correct text-white font-bold flex items-center justify-center rounded">M</div>
          <span>The letter <strong>M</strong> is in the word and in the correct spot.</span>
@@ -354,11 +354,11 @@ body {
        </div>
      </div>
      <div class="border-t border-gray-800 pt-3">
-       <div class="font-bold text-amber-400 mb-1">Hints & Spaces:</div>
+       <div class="font-bold text-amber-400 mb-1">Hints & spaces:</div>
        <ul class="list-disc list-inside space-y-1 text-gray-400 text-xs">
          <li>Spaces and hyphens are automatically revealed in the grid.</li>
-         <li>You can ask for up to <strong>2 hints</strong> per match using the lightbulb button.</li>
-         <li>You can inspect all available words by clicking the book icon in the top header.</li>
+         <li>You can use up to <strong>2 hints</strong> per game with the lightbulb button.</li>
+         <li>You can view all available words by clicking the book icon in the header.</li>
        </ul>
      </div>
    </div>
@@ -371,7 +371,7 @@ body {
    <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
      <h3 class="text-lg font-bold text-white flex items-center gap-2">
        <i class="fa-solid fa-chart-simple text-amber-400"></i>
-       Player Statistics
+       Player statistics
      </h3>
      <button id="btn-close-stats" class="text-gray-400 hover:text-white text-lg">
        <i class="fa-solid fa-xmark"></i>
@@ -393,11 +393,11 @@ body {
      </div>
      <div class="bg-black/40 border border-gray-800 p-2 rounded-xl">
        <div id="stat-max-streak" class="text-2xl font-black text-amber-400">0</div>
-       <div class="text-[10px] text-gray-400 uppercase">Max Streak</div>
+       <div class="text-[10px] text-gray-400 uppercase">Max streak</div>
      </div>
    </div>
 
-   <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 text-left">Guess Distribution</h4>
+   <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 text-left">Guess distribution</h4>
    <div id="guess-distribution" class="space-y-1.5 mb-6 text-xs w-full"></div>
 
    <button id="btn-stats-ok" class="w-full bg-termo-correct hover:bg-green-600 text-white font-bold py-2.5 rounded-xl transition shadow-lg">
@@ -415,7 +415,7 @@ body {
          <i class="fa-solid fa-book-bookmark text-amber-400"></i>
          Sabor Termo Dictionary
        </h3>
-       <p class="text-xs text-gray-400">Browse all culinary words and expressions in the game dataset</p>
+       <p class="text-xs text-gray-400">Browse all food-related words and expressions in the game.</p>
      </div>
      <button id="btn-close-word-list" class="text-gray-400 hover:text-white text-lg">
        <i class="fa-solid fa-xmark"></i>
@@ -437,7 +437,7 @@ body {
  const GAME_DATA = [
    {
      word: "briny",
-     description: "Pronounced, fresh salty taste.",
+     description: "Pronounced salty taste with a fresh, ocean-like quality.",
      hints: [
        "Reminiscent of sea water, cured olives, and fresh oysters.",
        "Intense salty flavor characteristic of seafood preserves."
@@ -477,7 +477,7 @@ body {
    },
    {
      word: "comforting",
-     description: "Cozy and homey feeling.",
+     description: "A cozy, comforting feeling.",
      hints: [
        "Warming food that feels like a cozy blanket on a cold day.",
        "A soothing feeling from enjoying hot soup or homemade mashed potatoes."
@@ -487,13 +487,13 @@ body {
      word: "earthy",
      description: "Rustic notes reminiscent of soil.",
      hints: [
-       "Reminds of fresh mushrooms, truffles, beets, and damp soil.",
+       "Reminiscent of fresh mushrooms, truffles, beets, and damp soil.",
        "Deep, rustic, natural flavor directly from the ground."
      ]
    },
    {
      word: "pungent",
-     description: "Penetrating and sharp aroma and taste.",
+     description: "Strong, sharp aroma and flavor.",
      hints: [
        "Extremely sharp and strong flavor, like raw garlic or horseradish.",
        "Strong, biting smell that hits your nose right away."
@@ -501,7 +501,7 @@ body {
    },
    {
      word: "rich",
-     description: "Dense, full-bodied, savory flavor.",
+     description: "Dense, full-bodied, and savory flavor.",
      hints: [
        "Heavy and dense taste, full of butter, cream, or egg yolk.",
        "Satisfies quickly due to rich fats."
@@ -528,15 +528,15 @@ body {
      description: "Extremely tender, loose meat.",
      hints: [
        "Ribs slow-roasted for hours until meat falls off the bone by itself.",
-       "The ultimate level of tenderness in slow roasts."
+       "The ultimate level of tenderness in slow-cooked roasts."
      ]
    },
    {
      word: "cuts like butter",
-     description: "Extreme tenderness when cut.",
+     description: "Extremely tender when cut.",
      hints: [
        "A knife blade gliding through a filet mignon with zero resistance.",
-       "Classic expression for extremely tender textures."
+       "A classic expression for extremely tender textures."
      ]
    },
    {
@@ -544,14 +544,14 @@ body {
      description: "Light and full of air.",
      hints: [
        "Light as a cloud, filled with air bubbles like a perfect mousse or meringue.",
-       "Extreme sense of lightness when chewing."
+       "An exceptionally light sensation when chewing."
      ]
    },
    {
      word: "crumbly",
      description: "Breaks apart into small pieces easily.",
      hints: [
-       "Specialty of shortbread cookies or feta cheese that crumbles at a touch.",
+       "Typical of shortbread cookies or feta cheese that crumbles at a touch.",
        "Dry texture that breaks into small pieces in your mouth."
      ]
    },
@@ -575,7 +575,7 @@ body {
      word: "velvety",
      description: "Velvety, elegant mouthfeel.",
      hints: [
-       "Velvety, thick, and smooth, coating the palate with elegance.",
+       "Thick and smooth, with a velvety mouthfeel that coats the palate.",
        "Like melted fine chocolate or dense whipped cream."
      ]
    },
@@ -583,56 +583,56 @@ body {
      word: "indulgent",
      description: "Extravagant and rich.",
      hints: [
-       "A true culinary extravaganza rich in calories and delight.",
+       "An extravagant culinary experience that is rich, decadent, and satisfying.",
        "An irresistible, decadent dish without diet worries."
      ]
    },
    {
      word: "exquisite",
-     description: "Refined and high-gastronomy.",
+     description: "Refined, sophisticated, and elegant.",
      hints: [
-       "High gastronomy flavor, extremely refined and perfectly balanced.",
-       "Quality of a dish prepared by a star chef."
+       "A refined, sophisticated flavor that is perfectly balanced.",
+       "A quality associated with dishes prepared by a star chef."
      ]
    },
    {
      word: "interesting flavor profile",
-     description: "Complex and intriguing aromatic profile.",
+     description: "A complex and intriguing combination of flavors.",
      hints: [
-       "Complex mix of sweet, sour, salty, and spicy notes in one bite.",
-       "Intriguing, unconventional flavor profile that surprises the palate."
+       "A complex mix of sweet, sour, salty, and spicy notes in a single bite.",
+       "An intriguing, unconventional flavor profile that surprises the palate."
      ]
    },
    {
      word: "umami",
      description: "Deep and savory taste.",
      hints: [
-       "The fifth basic taste! Found in soy sauce, parmesan, and mushrooms.",
+       "The fifth basic taste, found in soy sauce, Parmesan cheese, and mushrooms.",
        "Savory, rich, mouth-watering taste characteristic of concentrated broths."
      ]
    },
    {
      word: "sticky",
-     description: "Tacky and sweet.",
+     description: "Sticky, tacky, and often sweet.",
      hints: [
        "Think of gooey caramel or honey-glazed chicken wings.",
-       "Sticks to fingers and mouth with sweetness and viscosity."
+       "Sticks to your fingers and mouth with sweetness and viscosity."
      ]
    },
    {
      word: "burnt",
-     description: "Toasted and slightly bitter notes.",
+     description: "Toasted, charred, and slightly bitter notes.",
      hints: [
-       "Intense toasted note of over-crisped crust or dark caramelized sugar.",
-       "Reminds of wood-fired rustic bread crust or crème brûlée sugar."
+       "An intense toasted note from an over-crisp crust or deeply caramelized sugar.",
+       "Reminiscent of wood-fired bread crust or caramelized crème brûlée sugar."
      ]
    },
    {
      word: "sickly sweet",
      description: "Excessively sweet, cloying.",
      hints: [
-       "Overly sweet to the point of being cloying, calling for water.",
-       "Dessert with triple syrup and no acidity to balance."
+       "So sweet and cloying that you immediately want a glass of water.",
+       "A dessert overloaded with syrup and lacking acidity for balance."
      ]
    }
  ];
@@ -731,8 +731,24 @@ body {
    }, duration);
  }
 
+ // Shuffle-bag system: every word is used once before any word can repeat.
+ let wordBag = [];
+
+ function shuffleWordBag() {
+   wordBag = [...GAME_DATA];
+   for (let i = wordBag.length - 1; i > 0; i--) {
+     const j = Math.floor(Math.random() * (i + 1));
+     [wordBag[i], wordBag[j]] = [wordBag[j], wordBag[i]];
+   }
+ }
+
+ function getNextWord() {
+   if (wordBag.length === 0) shuffleWordBag();
+   return wordBag.pop();
+ }
+
  function initGame() {
-   secretObj = GAME_DATA[Math.floor(Math.random() * GAME_DATA.length)];
+   secretObj = getNextWord();
    secretWord = secretObj.word.toUpperCase();
    
    currentAttempt = 0;
@@ -1035,14 +1051,14 @@ body {
      icon.className = "w-16 h-16 bg-green-500/20 text-green-400 border border-green-500/40 rounded-full flex items-center justify-center text-3xl mb-4";
      icon.innerHTML = `<i class="fa-solid fa-trophy"></i>`;
      title.className = "text-2xl font-black text-green-400 mb-1";
-     title.innerText = "Excellent! You Got It!";
-     subtitle.innerText = `You discovered the flavor in ${currentAttempt} attempt(s)!`;
+     title.innerText = "Excellent! You got it!";
+     subtitle.innerText = `You discovered the term in ${currentAttempt} attempt(s)!`;
    } else {
      icon.className = "w-16 h-16 bg-red-500/20 text-red-400 border border-red-500/40 rounded-full flex items-center justify-center text-3xl mb-4";
      icon.innerHTML = `<i class="fa-solid fa-face-frown"></i>`;
      title.className = "text-2xl font-black text-red-400 mb-1";
      title.innerText = "Game Over!";
-     subtitle.innerText = "Not this time. The flavor remained secret!";
+     subtitle.innerText = "Not this time. The secret term remained hidden!";
    }
 
    wordBox.innerText = secretWord;
@@ -1130,7 +1146,7 @@ body {
 
  document.getElementById('btn-new-game').addEventListener('click', () => {
    initGame();
-   showToast("New game started! Good luck.");
+   showToast("New game started! Good luck!");
  });
 
  document.getElementById('btn-restart-game').addEventListener('click', () => {
